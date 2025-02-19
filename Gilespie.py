@@ -1,21 +1,24 @@
+#Soumyadeep Kundu-24D1064
+
 from numpy import *
 from matplotlib.pyplot import *
 
 
-k_on=10
-k_off=7
+kf=10
+kr=5
+L_ini=100
 
-ensembles=50
-iteration=10000
-k_tot=k_on+k_off
-P_on=k_on/k_tot
-P_off=k_off/k_tot
+ensembles=100
+iteration=2500
+k_tot=kf+kr
+P_on=kf/k_tot
+P_off=kr/k_tot
 L_points_all=[]
 t_points_all=[]
 for e in range(ensembles):
-	print(e)
+	#print(e)
 	t=0
-	L=2
+	L=L_ini
 	L_points=[L]
 	t_points=[t]
 	for i in range(iteration):
@@ -31,15 +34,19 @@ for e in range(ensembles):
 		t_points.append(t)
 	L_points_all.append(L_points)
 	t_points_all.append(t_points)
-	#plot(t_points, L_points)
+	plot(t_points, L_points)
 
-#xlabel('time')
-#ylabel('Length')
-#show()
+xlabel('time')
+ylabel('Length')
+title("Polymer length")
+savefig('Ensembles.pdf')
+
+clf()
 	
-max_t=max([max(i) for i in t_points_all])
+max_t=min([max(i) for i in t_points_all])
 t_points_range=arange(0,max_t,1)
 sig_sq_array=[]
+L_point_array=[]
 for t in t_points_range:
 	L_points_time=[]
 	for (L,i) in zip(L_points_all, t_points_all):
@@ -48,11 +55,31 @@ for t in t_points_range:
 			if A1<=0:
 				L_fin=o
 		L_points_time.append(L_fin)
+	L_point_array.append(mean(L_points_time))
 	L_points_time_sq=[l**2 for l in L_points_time]
 	sig_sq=mean(L_points_time_sq)-(mean(L_points_time))**2
 	sig_sq_array.append(sig_sq)
-print(sig_sq_array)
+
 scatter(t_points_range, sig_sq_array)
-show()
+x_points=arange(0, max_t, 1)
+y_points=[(kf+kr)*x+L_ini for x in x_points]
+plot(x_points, y_points, color='red')
+text(120, 1000, fr"slope=$k_f+k_r$={kf+kr}")
+title("Variance of Polymer length")
+xlabel('Time')
+ylabel(r"$\sigma^2$")
+
+savefig("Sigma.pdf")
+clf()
+
+scatter(t_points_range, L_point_array)
+x_points=arange(0, max_t, 1)
+y_points=[(kf-kr)*x+L_ini for x in x_points]
+plot(x_points, y_points, color='red')
+text(120, 400, f"slope=$k_f-k_r$={kf-kr}")
+xlabel('Time')
+ylabel(r"$<l>$")
+title("Average Polymer length")
+savefig("Avg_Length.pdf")
 			
 			
